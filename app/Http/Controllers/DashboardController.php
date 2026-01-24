@@ -24,31 +24,82 @@ class DashboardController extends Controller
             $accountId = null;
         }
 
-        $query = Trade::query()->orderBy('start_date');
         $dateRange = null;
         if ($filter !== 'all') {
             $now = Carbon::now();
             $start = $filter === 'month' ? $now->copy()->startOfMonth() : $now->copy()->startOfQuarter();
             $end = $filter === 'month' ? $now->copy()->endOfMonth() : $now->copy()->endOfQuarter();
-            $query->whereBetween('start_date', [$start->toDateString(), $end->toDateString()]);
-            $dateRange = [$start->toDateString(), $end->toDateString()];
+            $dateRange = [$start, $end];
+        }
+        $currentData = $this->buildPeriodData($dateRange, $accountId);
+
+        $previousStats = null;
+        $previousLabel = null;
+        if ($filter === 'month') {
+            $prevStart = Carbon::now()->subMonthNoOverflow()->startOfMonth();
+            $prevEnd = $prevStart->copy()->endOfMonth();
+            $previousStats = $this->buildPeriodData([$prevStart, $prevEnd], $accountId)['stats'];
+            $previousLabel = $prevStart->format('F Y');
+        } elseif ($filter === 'quarter') {
+            $prevStart = Carbon::now()->subQuarter()->startOfQuarter();
+            $prevEnd = $prevStart->copy()->endOfQuarter();
+            $previousStats = $this->buildPeriodData([$prevStart, $prevEnd], $accountId)['stats'];
+            $previousLabel = 'Q' . $prevStart->quarter . ' ' . $prevStart->year;
+        }
+
+        $accounts = Account::query()->orderBy('name')->get();
+
+        return view('dashboard', [
+            'filter' => $filter,
+            'accountId' => $accountId,
+            'accounts' => $accounts,
+            'totalTrades' => $currentData['stats']['totalTrades'],
+            'wins' => $currentData['stats']['wins'],
+            'losses' => $currentData['stats']['losses'],
+            'be' => $currentData['stats']['be'],
+            'inProgress' => $currentData['stats']['inProgress'],
+            'winningRatio' => $currentData['stats']['winningRatio'],
+            'averageRr' => $currentData['stats']['averageRr'],
+            'maxDrawdown' => $currentData['stats']['maxDrawdown'],
+            'netProfit' => $currentData['stats']['netProfit'],
+            'equity' => $currentData['stats']['equity'],
+            'previousStats' => $previousStats,
+            'previousLabel' => $previousLabel,
+        ]);
+    }
+
+    private function buildPeriodData(?array $dateRange, ?int $accountId): array
+    {
+        $tradeQuery = Trade::query()->orderBy('start_date');
+        if ($dateRange) {
+            $tradeQuery->whereBetween('start_date', [$dateRange[0]->toDateString(), $dateRange[1]->toDateString()]);
         }
 
         $accountTradeQuery = AccountTrade::query()->with('trade');
         if ($dateRange) {
             $accountTradeQuery->whereHas('trade', function ($tradeQuery) use ($dateRange) {
-                $tradeQuery->whereBetween('start_date', $dateRange);
+                $tradeQuery->whereBetween('start_date', [$dateRange[0]->toDateString(), $dateRange[1]->toDateString()]);
             });
         }
         if ($accountId) {
             $accountTradeQuery->where('account_id', $accountId);
         }
+
         $accountTrades = $accountTradeQuery->get();
         $trades = $accountId
             ? $accountTrades->pluck('trade')->filter()->unique('id')->values()
-            : $query->get();
+            : $tradeQuery->get();
 
-        if ($accountId) {
+        return [
+            'trades' => $trades,
+            'accountTrades' => $accountTrades,
+            'stats' => $this->computeStats($trades, $accountTrades, (bool) $accountId),
+        ];
+    }
+
+    private function computeStats($trades, $accountTrades, bool $accountMode): array
+    {
+        if ($accountMode) {
             $totalTrades = $accountTrades->count();
             $wins = $accountTrades->filter(fn ($at) => $at->trade && $at->trade->result === 'win')->count();
             $losses = $accountTrades->filter(fn ($at) => $at->trade && $at->trade->result === 'loss')->count();
@@ -64,6 +115,7 @@ class DashboardController extends Controller
 
         $winsLosses = $wins + $losses;
         $winningRatio = $winsLosses > 0 ? ($wins / $winsLosses) * 100 : 0;
+
         $winAccountTrades = $accountTrades->filter(function ($accountTrade) {
             return $accountTrade->trade && $accountTrade->trade->result === 'win';
         });
@@ -77,11 +129,11 @@ class DashboardController extends Controller
         $currentLossStreak = 0.0;
         $maxDrawdown = 0.0;
 
-        $accountTrades = $accountTrades->sortBy(function ($accountTrade) {
+        $sortedTrades = $accountTrades->sortBy(function ($accountTrade) {
             return $accountTrade->trade ? $accountTrade->trade->start_date : null;
         })->values();
 
-        foreach ($accountTrades as $accountTrade) {
+        foreach ($sortedTrades as $accountTrade) {
             $trade = $accountTrade->trade;
             if (! $trade) {
                 continue;
@@ -110,8 +162,6 @@ class DashboardController extends Controller
                 } else {
                     $currentLossStreak = 0.0;
                 }
-            } else {
-                $delta = 0.0;
             }
 
             $running += $delta;
@@ -119,12 +169,7 @@ class DashboardController extends Controller
             $equity[] = $running;
         }
 
-        $accounts = Account::query()->orderBy('name')->get();
-
-        return view('dashboard', [
-            'filter' => $filter,
-            'accountId' => $accountId,
-            'accounts' => $accounts,
+        return [
             'totalTrades' => $totalTrades,
             'wins' => $wins,
             'losses' => $losses,
@@ -135,6 +180,6 @@ class DashboardController extends Controller
             'maxDrawdown' => $maxDrawdown,
             'netProfit' => $netProfit,
             'equity' => $equity,
-        ]);
+        ];
     }
 }
