@@ -35,7 +35,7 @@
     <div class="card">
         <div class="stat-title">Notes</div>
         <div class="stat-sub">
-            Accounts link trades together and power account-level stats. Current balance is optional; if empty, it is calculated from initial balance and net profit %.
+            Accounts link trades together and power account-level stats. Current balance is calculated from current balance (if set) plus net profit % of the initial balance.
         </div>
     </div>
 </div>

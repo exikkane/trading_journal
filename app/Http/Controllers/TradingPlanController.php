@@ -60,6 +60,13 @@ class TradingPlanController extends Controller
         ]);
     }
 
+    public function show(TradingPlan $plan)
+    {
+        return view('plans.show', [
+            'plan' => $plan,
+        ]);
+    }
+
     public function update(Request $request, TradingPlan $plan)
     {
         $data = $this->validatePlan($request);

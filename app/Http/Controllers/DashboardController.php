@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\AccountTrade;
 use App\Models\Trade;
 use Carbon\Carbon;
@@ -16,6 +17,13 @@ class DashboardController extends Controller
             $filter = 'month';
         }
 
+        $accountId = $request->query('account');
+        if ($accountId !== null && $accountId !== 'all') {
+            $accountId = (int) $accountId;
+        } else {
+            $accountId = null;
+        }
+
         $query = Trade::query()->orderBy('start_date');
         $dateRange = null;
         if ($filter !== 'all') {
@@ -26,20 +34,33 @@ class DashboardController extends Controller
             $dateRange = [$start->toDateString(), $end->toDateString()];
         }
 
-        $trades = $query->get();
         $accountTradeQuery = AccountTrade::query()->with('trade');
         if ($dateRange) {
             $accountTradeQuery->whereHas('trade', function ($tradeQuery) use ($dateRange) {
                 $tradeQuery->whereBetween('start_date', $dateRange);
             });
         }
+        if ($accountId) {
+            $accountTradeQuery->where('account_id', $accountId);
+        }
         $accountTrades = $accountTradeQuery->get();
+        $trades = $accountId
+            ? $accountTrades->pluck('trade')->filter()->unique('id')->values()
+            : $query->get();
 
-        $totalTrades = $trades->count();
-        $wins = $trades->where('result', 'win')->count();
-        $losses = $trades->where('result', 'loss')->count();
-        $be = $trades->where('result', 'be')->count();
-        $inProgress = $trades->where('result', 'in_progress')->count();
+        if ($accountId) {
+            $totalTrades = $accountTrades->count();
+            $wins = $accountTrades->filter(fn ($at) => $at->trade && $at->trade->result === 'win')->count();
+            $losses = $accountTrades->filter(fn ($at) => $at->trade && $at->trade->result === 'loss')->count();
+            $be = $accountTrades->filter(fn ($at) => $at->trade && $at->trade->result === 'be')->count();
+            $inProgress = $accountTrades->filter(fn ($at) => $at->trade && $at->trade->result === 'in_progress')->count();
+        } else {
+            $totalTrades = $trades->count();
+            $wins = $trades->where('result', 'win')->count();
+            $losses = $trades->where('result', 'loss')->count();
+            $be = $trades->where('result', 'be')->count();
+            $inProgress = $trades->where('result', 'in_progress')->count();
+        }
 
         $winsLosses = $wins + $losses;
         $winningRatio = $winsLosses > 0 ? ($wins / $winsLosses) * 100 : 0;
@@ -98,8 +119,12 @@ class DashboardController extends Controller
             $equity[] = $running;
         }
 
+        $accounts = Account::query()->orderBy('name')->get();
+
         return view('dashboard', [
             'filter' => $filter,
+            'accountId' => $accountId,
+            'accounts' => $accounts,
             'totalTrades' => $totalTrades,
             'wins' => $wins,
             'losses' => $losses,

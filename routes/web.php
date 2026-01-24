@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PerformanceAnalysisController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TradeController;
 use App\Http\Controllers\TradingPlanController;
@@ -38,3 +39,7 @@ Route::get('/plans/create', [TradingPlanController::class, 'create'])->name('pla
 Route::post('/plans', [TradingPlanController::class, 'store'])->name('plans.store');
 Route::get('/plans/{plan}/edit', [TradingPlanController::class, 'edit'])->name('plans.edit');
 Route::put('/plans/{plan}', [TradingPlanController::class, 'update'])->name('plans.update');
+Route::get('/plans/{plan}', [TradingPlanController::class, 'show'])->name('plans.show');
+Route::get('/performance', [PerformanceAnalysisController::class, 'index'])->name('performance.index');
+Route::get('/performance/{type}/{year}/{period}', [PerformanceAnalysisController::class, 'show'])->name('performance.detail');
+Route::post('/performance/{type}/{year}/{period}', [PerformanceAnalysisController::class, 'updateReview'])->name('performance.detail.update');
