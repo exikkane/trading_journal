@@ -26,7 +26,7 @@
             color: var(--text);
         }
         header {
-            padding: 20px 400px;
+            padding: 20px 500px;
             background: rgba(17, 24, 39, 0.9);
             border-bottom: 1px solid var(--border);
             backdrop-filter: blur(10px);
@@ -40,7 +40,7 @@
             gap: 10px;
             flex-wrap: wrap;
         }
-        main { padding: 24px 400px 48px; }
+        main { padding: 24px 500px 48px; }
         .card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -101,6 +101,116 @@
         }
         .actions {
             min-width: 180px;
+        }
+
+        .trades-toolbar {
+            gap: 16px;
+        }
+        .trades-toolbar .btn {
+            padding: 8px 16px;
+            border-radius: 10px;
+        }
+        .trades-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 13px;
+            background: #0f1627;
+            border: 1px solid #1f2a3d;
+            border-radius: 14px;
+        }
+        .trades-table thead th {
+            background: #101827;
+            border-bottom: 1px solid #1f2a3d;
+            color: #a8b3c7;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+        }
+        .trades-table thead th:first-child {
+            border-top-left-radius: 10px;
+        }
+        .trades-table thead th:last-child {
+            border-top-right-radius: 10px;
+        }
+        .trades-table tbody tr {
+            background: #0f1627;
+        }
+        .trades-table tbody tr:nth-child(even) {
+            background: #101a2d;
+        }
+        .trades-table tbody tr:hover {
+            background: #15213a;
+        }
+        .trades-table td, .trades-table th {
+            border-bottom: 1px solid #1f2a3d;
+        }
+        .trades-table td {
+            color: #e2e8f0;
+        }
+        .trade-pair {
+            font-weight: 700;
+        }
+        .trades-table input, .trades-table select {
+            background: #0b1220;
+            border: 1px solid #22304a;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 6px 8px;
+        }
+        .trades-table .row {
+            gap: 8px;
+        }
+        .trades-table .btn {
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        .trades-actions .btn {
+            min-width: 76px;
+            text-align: center;
+        }
+        .chip-select {
+            appearance: none;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 6px 12px;
+            min-width: 92px;
+            text-align: center;
+            border: 1px solid transparent;
+            background-image: none;
+        }
+        .chip-direction-long {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.16) !important;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+        .chip-direction-short {
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.16) !important;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        .chip-result-win {
+            color: #86efac;
+            background: rgba(1, 225, 82, 0.47) !important;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+        .chip-result-loss {
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.55) !important;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        .chip-result-be {
+            color: #cbd5f5;
+            background: rgba(148, 163, 184, 0.18) !important;
+            border-color: rgba(148, 163, 184, 0.35);
+        }
+        .chip-result-in_progress {
+            color: #fbbf24;
+            background: rgba(15, 95, 186, 0.66) !important;
+            border-color: rgba(245, 158, 11, 0.35);
         }
         .muted { color: var(--muted); }
         .badge {

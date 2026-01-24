@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="card">
-    <div class="row">
+<div class="card trades-card" style="margin-bottom: 16px;">
+    <div class="row trades-toolbar">
         <div>
             <div class="muted" style="font-size: 13px;">Filters</div>
             <div class="row" style="margin-top: 6px;">
@@ -16,9 +16,11 @@
         <div class="spacer"></div>
         <a class="btn" href="{{ route('trades.create') }}">Add Trade</a>
     </div>
+</div>
 
-    <div style="margin-top: 20px; overflow-x: auto;">
-        <table>
+<div class="trades-card">
+    <div style="overflow-x: auto;">
+        <table class="trades-table">
             <thead>
                 <tr>
                     <th>Trade ID</th>
@@ -46,16 +48,17 @@
                             </div>
                         </td>
                         <td>
-                            <select name="direction" form="{{ $updateFormId }}" required>
+                            <select class="chip-select chip-direction chip-direction-{{ $trade->direction }}" data-chip="direction" name="direction" form="{{ $updateFormId }}" required>
                                 <option value="long" {{ $trade->direction === 'long' ? 'selected' : '' }}>Long</option>
                                 <option value="short" {{ $trade->direction === 'short' ? 'selected' : '' }}>Short</option>
                             </select>
                         </td>
                         <td>
-                            <input type="text" name="pair" value="{{ $trade->pair }}" form="{{ $updateFormId }}" required>
+                            <span class="trade-pair">{{ $trade->pair }}</span>
+                            <input type="hidden" name="pair" value="{{ $trade->pair }}" form="{{ $updateFormId }}">
                         </td>
                         <td>
-                            <select name="result" form="{{ $updateFormId }}" required>
+                            <select class="chip-select chip-result chip-result-{{ $trade->result }}" data-chip="result" name="result" form="{{ $updateFormId }}" required>
                                 <option class="in_progress" value="in_progress" {{ $trade->result === 'in_progress' ? 'selected' : '' }}>In progress</option>
                                 <option class="win" value="win" {{ $trade->result === 'win' ? 'selected' : '' }}>Win</option>
                                 <option class="loss" value="loss" {{ $trade->result === 'loss' ? 'selected' : '' }}>Loss</option>
@@ -63,7 +66,7 @@
                             </select>
                         </td>
                         <td>{{ number_format((float) ($profits[$trade->id] ?? 0), 2, '.', '') }}%</td>
-                        <td class="actions">
+                        <td class="actions trades-actions">
                             <form id="{{ $updateFormId }}" method="POST" action="{{ route('trades.update', ['trade' => $trade, 'filter' => $filter]) }}">
                                 @csrf
                                 @method('PUT')
@@ -88,4 +91,25 @@
         </table>
     </div>
 </div>
+
+<script>
+    (function () {
+        const chips = {
+            direction: ['long', 'short'],
+            result: ['win', 'loss', 'be', 'in_progress'],
+        };
+        document.querySelectorAll('.chip-select').forEach((select) => {
+            const kind = select.dataset.chip;
+            const values = chips[kind] || [];
+            const update = () => {
+                values.forEach((value) => {
+                    select.classList.remove(`chip-${kind}-${value}`);
+                });
+                select.classList.add(`chip-${kind}-${select.value}`);
+            };
+            select.addEventListener('change', update);
+            update();
+        });
+    })();
+</script>
 @endsection
