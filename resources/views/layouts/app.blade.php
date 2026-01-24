@@ -241,6 +241,125 @@
             font-size: 12px;
         }
         .vs-metric strong { color: var(--text); font-weight: 600; }
+        .system-hero {
+            position: relative;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid #1f2a3d;
+            background-size: cover;
+            background-position: center;
+            min-height: 360px;
+        }
+        .system-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(100deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.75) 50%, rgba(15, 23, 42, 0.3) 100%);
+        }
+        .system-content {
+            position: relative;
+            z-index: 1;
+            padding: 32px 36px;
+            max-width: 620px;
+        }
+        .system-brand {
+            font-weight: 700;
+            color: #fbbf24;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .system-title {
+            font-size: 56px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            margin: 10px 0 16px;
+            line-height: 1;
+            text-transform: uppercase;
+            text-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+        }
+        .system-title span {
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .system-title .secondary {
+            color: #fbbf24;
+        }
+        .system-body {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #e2e8f0;
+        }
+        .system-body p { margin: 0 0 8px; }
+        .system-cta {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: 2px solid rgba(139, 92, 246, 0.8);
+            color: #e2e8f0;
+            text-decoration: none;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            background: rgba(15, 23, 42, 0.6);
+            box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.4);
+        }
+        .system-footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+        .system-footer a { color: #fbbf24; text-decoration: underline; }
+        .system-page {
+            display: grid;
+            gap: 24px;
+        }
+        .system-title-main {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .system-section {
+            background: #0f1627;
+            border: 1px solid #1f2a3d;
+            border-radius: 12px;
+            padding: 18px 20px;
+        }
+        .system-section h3 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #e2e8f0;
+        }
+        .system-grid-two {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+        .system-grid-three {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 24px;
+        }
+        .system-list {
+            margin: 0;
+            padding-left: 18px;
+            line-height: 1.7;
+            color: #cbd5f5;
+        }
+        .system-list li { margin-bottom: 6px; }
+        .system-paragraph {
+            color: #cbd5f5;
+            line-height: 1.7;
+        }
+        .system-divider {
+            height: 1px;
+            background: #1f2a3d;
+            margin: 16px 0;
+        }
+        .system-muted {
+            color: var(--muted);
+            font-size: 12px;
+        }
         .error {
             color: #b91c1c;
             font-size: 13px;
@@ -250,6 +369,7 @@
             .perf-grid { grid-template-columns: 1fr; }
             .perf-card { width: 100%; height: auto; }
             .stat-grid { grid-template-columns: 1fr; }
+            .system-grid-two, .system-grid-three { grid-template-columns: 1fr; }
             header { padding: 16px 20px; }
             main { padding: 20px; }
         }
@@ -265,11 +385,12 @@
             <h1>Trading Journal</h1>
             <div class="spacer"></div>
             <nav>
+                <a class="btn light" href="{{ route('dashboard') }}">Dashboard</a>
                 <a class="btn light" href="{{ route('trades.index') }}">Trades</a>
                 <a class="btn light" href="{{ route('plans.index') }}">Plans</a>
                 <a class="btn light" href="{{ route('performance.index') }}">Performance</a>
-                <a class="btn light" href="{{ route('dashboard') }}">Dashboard</a>
                 <a class="btn light" href="{{ route('accounts.index') }}">Accounts</a>
+                <a class="btn light" href="{{ route('system.index') }}">System</a>
             </nav>
         </div>
     </header>

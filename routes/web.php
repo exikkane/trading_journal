@@ -6,6 +6,7 @@ use App\Http\Controllers\PerformanceAnalysisController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TradeController;
 use App\Http\Controllers\TradingPlanController;
+use App\Http\Controllers\TradingSystemController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,3 +44,6 @@ Route::get('/plans/{plan}', [TradingPlanController::class, 'show'])->name('plans
 Route::get('/performance', [PerformanceAnalysisController::class, 'index'])->name('performance.index');
 Route::get('/performance/{type}/{year}/{period}', [PerformanceAnalysisController::class, 'show'])->name('performance.detail');
 Route::post('/performance/{type}/{year}/{period}', [PerformanceAnalysisController::class, 'updateReview'])->name('performance.detail.update');
+Route::get('/system', [TradingSystemController::class, 'index'])->name('system.index');
+Route::get('/system/edit', [TradingSystemController::class, 'edit'])->name('system.edit');
+Route::post('/system', [TradingSystemController::class, 'update'])->name('system.update');
