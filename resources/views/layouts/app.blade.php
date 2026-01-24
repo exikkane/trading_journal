@@ -109,6 +109,9 @@
         .badge.win { background: #dcfce7; color: #166534; }
         .badge.loss { background: #fee2e2; color: #991b1b; }
         .badge.be { background: #e2e8f0; color: #0f172a; }
+        .badge.bullish { background: #dcfce7; color: #166534; }
+        .badge.bearish { background: #fee2e2; color: #991b1b; }
+        .badge.neutral { background: #e2e8f0; color: #0f172a; }
         form .field {
             display: grid;
             gap: 6px;
@@ -132,6 +135,19 @@
         .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .grid.split { grid-template-columns: minmax(0, 7fr) minmax(0, 3fr); }
+        .grid.plan-split { grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) minmax(0, 3fr); }
+        .plan-section {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            background: #f8fafc;
+        }
+        .plan-section h3 { margin: 0 0 12px 0; }
+        .image-stack {
+            display: grid;
+            gap: 16px;
+        }
         .stat-title {
             color: var(--muted);
             font-size: 12px;
@@ -155,7 +171,7 @@
             font-size: 13px;
         }
         @media (max-width: 900px) {
-            .grid.two, .grid.three, .grid.four { grid-template-columns: 1fr; }
+            .grid.two, .grid.three, .grid.four, .grid.split, .grid.plan-split { grid-template-columns: 1fr; }
             main { padding: 20px; }
         }
     </style>
@@ -167,6 +183,7 @@
             <div class="spacer"></div>
             <nav>
                 <a class="btn light" href="{{ route('trades.index') }}">Trades</a>
+                <a class="btn light" href="{{ route('plans.index') }}">Plans</a>
                 <a class="btn light" href="{{ route('dashboard') }}">Dashboard</a>
                 <a class="btn light" href="{{ route('accounts.index') }}">Accounts</a>
                 <a class="btn light" href="{{ route('stats.index') }}">Stats</a>
