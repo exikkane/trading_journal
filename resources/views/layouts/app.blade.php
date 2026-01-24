@@ -6,25 +6,30 @@
     <title>Trading Journal</title>
     <style>
         :root {
-            color-scheme: light;
-            --bg: #f6f7fb;
-            --card: #ffffff;
-            --text: #1b1f24;
-            --muted: #64748b;
-            --accent: #0f766e;
-            --border: #e2e8f0;
+            color-scheme: dark;
+            --bg: #0b0f1a;
+            --bg-2: #0f172a;
+            --card: #111827;
+            --card-2: #0f172a;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #8b5cf6;
+            --accent-2: #22c55e;
+            --danger: #ef4444;
+            --border: #1f2937;
         }
         * { box-sizing: border-box; }
         body {
             margin: 0;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Manrope", "DM Sans", "Segoe UI", sans-serif;
             background: var(--bg);
             color: var(--text);
         }
         header {
-            padding: 20px 32px;
-            background: var(--card);
+            padding: 20px 400px;
+            background: rgba(17, 24, 39, 0.9);
             border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
         }
         header h1 {
             margin: 0;
@@ -35,14 +40,13 @@
             gap: 10px;
             flex-wrap: wrap;
         }
-        main {
-            padding: 24px 32px 48px;
-        }
+        main { padding: 24px 400px 48px; }
         .card {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 10px;
             padding: 20px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
         }
         .row {
             display: flex;
@@ -63,11 +67,12 @@
             font-weight: 600;
         }
         .btn.secondary {
-            background: #0f172a;
+            background: #1f2937;
         }
         .btn.light {
-            background: #e2e8f0;
-            color: #0f172a;
+            background: #111827;
+            color: #e2e8f0;
+            border: 1px solid #2b3648;
         }
         table {
             width: 100%;
@@ -105,13 +110,13 @@
             font-weight: 600;
             display: inline-block;
         }
-        .badge.in_progress { background: #fef9c3; color: #92400e; }
-        .badge.win { background: #dcfce7; color: #166534; }
-        .badge.loss { background: #fee2e2; color: #991b1b; }
-        .badge.be { background: #e2e8f0; color: #0f172a; }
-        .badge.bullish { background: #dcfce7; color: #166534; }
-        .badge.bearish { background: #fee2e2; color: #991b1b; }
-        .badge.neutral { background: #e2e8f0; color: #0f172a; }
+        .badge.in_progress { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .badge.win { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .badge.loss { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge.be { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+        .badge.bullish { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .badge.bearish { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge.neutral { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
         form .field {
             display: grid;
             gap: 6px;
@@ -123,7 +128,10 @@
             border-radius: 6px;
             font-size: 14px;
             font-family: inherit;
+            background: #0b1220;
+            color: var(--text);
         }
+        input::placeholder, textarea::placeholder { color: #64748b; }
         textarea {
             min-height: 120px;
             resize: vertical;
@@ -141,7 +149,7 @@
             border: 1px solid var(--border);
             border-radius: 10px;
             padding: 16px;
-            background: #f8fafc;
+            background: #0f1627;
         }
         .plan-section h3 { margin: 0 0 12px 0; }
         .image-stack {
@@ -160,7 +168,7 @@
             border: 1px solid var(--border);
             border-radius: 10px;
             padding: 12px;
-            background: #ffffff;
+            background: #0f1627;
             display: grid;
             align-content: start;
             gap: 6px;
@@ -191,6 +199,48 @@
             margin-top: 8px;
             line-height: 1.6;
         }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .stat-card {
+            background: linear-gradient(160deg, rgba(139, 92, 246, 0.12), rgba(17, 24, 39, 0.8));
+            border: 1px solid #222b3d;
+            border-radius: 12px;
+            padding: 16px;
+            display: grid;
+            gap: 8px;
+            min-height: 120px;
+        }
+        .stat-card .stat-value { font-size: 26px; }
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-2);
+            background: rgba(34, 197, 94, 0.15);
+        }
+        .stat-chip.negative {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.15);
+        }
+        .vs-card {
+            background: #0f1627;
+            border: 1px solid #1f2a3d;
+        }
+        .vs-metric {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+        .vs-metric strong { color: var(--text); font-weight: 600; }
         .error {
             color: #b91c1c;
             font-size: 13px;
@@ -199,7 +249,13 @@
             .grid.two, .grid.three, .grid.four, .grid.split, .grid.plan-split { grid-template-columns: 1fr; }
             .perf-grid { grid-template-columns: 1fr; }
             .perf-card { width: 100%; height: auto; }
+            .stat-grid { grid-template-columns: 1fr; }
+            header { padding: 16px 20px; }
             main { padding: 20px; }
+        }
+        @media (max-width: 1400px) {
+            header { padding: 20px 120px; }
+            main { padding: 24px 120px 48px; }
         }
     </style>
 </head>
