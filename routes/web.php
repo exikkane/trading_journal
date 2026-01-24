@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TradeController;
+use App\Http\Controllers\TradingPlanController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,3 +32,9 @@ Route::delete('/trades/{trade}', [TradeController::class, 'destroy'])->name('tra
 Route::post('/trades/{trade}/subtrades', [TradeController::class, 'storeSubtrade'])->name('trades.subtrades.store');
 Route::put('/trades/{trade}/subtrades/{subtrade}', [TradeController::class, 'updateSubtrade'])->name('trades.subtrades.update');
 Route::delete('/trades/{trade}/subtrades/{subtrade}', [TradeController::class, 'destroySubtrade'])->name('trades.subtrades.destroy');
+
+Route::get('/plans', [TradingPlanController::class, 'index'])->name('plans.index');
+Route::get('/plans/create', [TradingPlanController::class, 'create'])->name('plans.create');
+Route::post('/plans', [TradingPlanController::class, 'store'])->name('plans.store');
+Route::get('/plans/{plan}/edit', [TradingPlanController::class, 'edit'])->name('plans.edit');
+Route::put('/plans/{plan}', [TradingPlanController::class, 'update'])->name('plans.update');
