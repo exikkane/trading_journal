@@ -148,6 +148,31 @@
             display: grid;
             gap: 16px;
         }
+        .perf-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(3, 300px);
+            align-items: start;
+        }
+        .perf-card {
+            width: 300px;
+            height: 150px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            background: #ffffff;
+            display: grid;
+            align-content: start;
+            gap: 6px;
+            font-size: 12px;
+        }
+        .perf-card-link { text-decoration: none; color: inherit; }
+        .perf-card-link:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(15, 118, 110, 0.12); }
+        .perf-title {
+            font-weight: 700;
+            font-size: 13px;
+        }
+        .perf-row { color: var(--muted); }
         .stat-title {
             color: var(--muted);
             font-size: 12px;
@@ -172,6 +197,8 @@
         }
         @media (max-width: 900px) {
             .grid.two, .grid.three, .grid.four, .grid.split, .grid.plan-split { grid-template-columns: 1fr; }
+            .perf-grid { grid-template-columns: 1fr; }
+            .perf-card { width: 100%; height: auto; }
             main { padding: 20px; }
         }
     </style>
@@ -184,9 +211,9 @@
             <nav>
                 <a class="btn light" href="{{ route('trades.index') }}">Trades</a>
                 <a class="btn light" href="{{ route('plans.index') }}">Plans</a>
+                <a class="btn light" href="{{ route('performance.index') }}">Performance</a>
                 <a class="btn light" href="{{ route('dashboard') }}">Dashboard</a>
                 <a class="btn light" href="{{ route('accounts.index') }}">Accounts</a>
-                <a class="btn light" href="{{ route('stats.index') }}">Stats</a>
             </nav>
         </div>
     </header>

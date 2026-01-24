@@ -60,9 +60,10 @@ class AccountController extends Controller
 
             $initialBalance = (float) $account->initial_balance;
             $profitAmount = $initialBalance * ($netProfit / 100);
-            $currentBalance = $account->current_balance !== null
+            $baseBalance = $account->current_balance !== null
                 ? (float) $account->current_balance
-                : $initialBalance + $profitAmount;
+                : $initialBalance;
+            $currentBalance = $baseBalance + $profitAmount;
 
             $stats[$account->id] = [
                 'total' => $total,

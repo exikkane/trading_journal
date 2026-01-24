@@ -2,14 +2,27 @@
 
 @section('content')
 <div class="card" style="margin-bottom: 16px;">
-    <div class="row">
+    <div class="row" style="gap: 24px;">
         <div>
-            <div class="stat-title">Filter</div>
+            <div class="stat-title">Time Filter</div>
             <div class="row" style="margin-top: 6px;">
-                <a class="btn {{ $filter === 'all' ? 'secondary' : 'light' }}" href="{{ route('dashboard', ['filter' => 'all']) }}">All</a>
-                <a class="btn {{ $filter === 'month' ? 'secondary' : 'light' }}" href="{{ route('dashboard', ['filter' => 'month']) }}">Current Month</a>
-                <a class="btn {{ $filter === 'quarter' ? 'secondary' : 'light' }}" href="{{ route('dashboard', ['filter' => 'quarter']) }}">Current Quarter</a>
+                <a class="btn {{ $filter === 'all' ? 'secondary' : 'light' }}" href="{{ route('dashboard', ['filter' => 'all', 'account' => $accountId ?? 'all']) }}">All</a>
+                <a class="btn {{ $filter === 'month' ? 'secondary' : 'light' }}" href="{{ route('dashboard', ['filter' => 'month', 'account' => $accountId ?? 'all']) }}">Current Month</a>
+                <a class="btn {{ $filter === 'quarter' ? 'secondary' : 'light' }}" href="{{ route('dashboard', ['filter' => 'quarter', 'account' => $accountId ?? 'all']) }}">Current Quarter</a>
             </div>
+        </div>
+        <div>
+            <div class="stat-title">Account Filter</div>
+            <form method="GET" action="{{ route('dashboard') }}" class="row" style="margin-top: 6px;">
+                <input type="hidden" name="filter" value="{{ $filter }}">
+                <select name="account" onchange="this.form.submit()">
+                    <option value="all">All Accounts</option>
+                    @foreach ($accounts as $account)
+                        <option value="{{ $account->id }}" {{ (string) $accountId === (string) $account->id ? 'selected' : '' }}>{{ $account->name }}</option>
+                    @endforeach
+                </select>
+                <noscript><button class="btn light" type="submit">Apply</button></noscript>
+            </form>
         </div>
     </div>
 </div>
