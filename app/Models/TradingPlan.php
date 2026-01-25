@@ -17,6 +17,8 @@ class TradingPlan extends Model
         'weekly_chart_notes',
         'daily_chart_screenshot_path',
         'daily_chart_notes',
+        'dxy_chart_screenshot_path',
+        'dxy_chart_notes',
         'plan_a_screenshot_path',
         'plan_a_notes',
         'plan_b_screenshot_path',
@@ -33,4 +35,9 @@ class TradingPlan extends Model
     protected $casts = [
         'plan_date' => 'date',
     ];
+
+    public function updates()
+    {
+        return $this->hasMany(TradingPlanUpdate::class, 'trading_plan_id');
+    }
 }

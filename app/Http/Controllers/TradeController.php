@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\AccountTrade;
+use App\Models\Pair;
 use App\Models\Trade;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,6 +18,13 @@ class TradeController extends Controller
         $filter = $request->query('filter', 'month');
         if (! in_array($filter, ['week', 'month', 'quarter', 'all'], true)) {
             $filter = 'month';
+        }
+        $pairs = Pair::query()->orderBy('name')->get();
+        $pairName = $request->query('pair', 'all');
+        if ($pairName === 'all') {
+            $pairName = null;
+        } elseif (! $pairs->pluck('name')->contains($pairName)) {
+            $pairName = null;
         }
         $query = Trade::query()->orderByDesc('start_date');
 
@@ -35,6 +43,9 @@ class TradeController extends Controller
 
             $query->whereBetween('start_date', [$start->toDateString(), $end->toDateString()]);
         }
+        if ($pairName) {
+            $query->where('pair', $pairName);
+        }
 
         $trades = $query->with('accountTrades')->get();
 
@@ -50,13 +61,19 @@ class TradeController extends Controller
         return view('trades.index', [
             'trades' => $trades,
             'filter' => $filter,
+            'pairName' => $pairName,
+            'pairs' => $pairs,
             'profits' => $profits,
         ]);
     }
 
     public function create()
     {
+        $pairsByCategory = Pair::query()->orderBy('name')->get()->groupBy('category');
+
         return view('trades.create', [
+            'pairsByCategory' => $pairsByCategory,
+            'pairCategories' => Pair::categories(),
         ]);
     }
 
@@ -66,7 +83,7 @@ class TradeController extends Controller
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'direction' => ['required', 'in:long,short'],
-            'pair' => ['required', 'string', 'max:255'],
+            'pair' => ['required', Rule::exists('pairs', 'name')],
             'result' => ['required', 'in:in_progress,loss,win,be'],
             'execution' => ['nullable', 'string', 'max:255'],
             'entry_tf' => ['nullable', 'string', 'max:50'],
@@ -87,6 +104,7 @@ class TradeController extends Controller
     public function show(Trade $trade)
     {
         $accounts = Account::query()->orderBy('name')->get();
+        $pairsByCategory = Pair::query()->orderBy('name')->get()->groupBy('category');
 
         $accountTrades = $trade->accountTrades()->with(['account', 'trade'])->orderByDesc('id')->get();
         $accountsProfit = 0.0;
@@ -99,6 +117,8 @@ class TradeController extends Controller
             'accounts' => $accounts,
             'accountTrades' => $accountTrades,
             'accountsProfit' => $accountsProfit,
+            'pairsByCategory' => $pairsByCategory,
+            'pairCategories' => Pair::categories(),
         ]);
     }
 
@@ -108,7 +128,7 @@ class TradeController extends Controller
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'direction' => ['required', 'in:long,short'],
-            'pair' => ['required', 'string', 'max:255'],
+            'pair' => ['required', Rule::exists('pairs', 'name')],
             'result' => ['required', 'in:in_progress,loss,win,be'],
             'execution' => ['nullable', 'string', 'max:255'],
             'entry_tf' => ['nullable', 'string', 'max:50'],
@@ -130,6 +150,7 @@ class TradeController extends Controller
 
         return redirect()->route('trades.index', [
             'filter' => $request->query('filter', 'month'),
+            'pair' => $request->query('pair', 'all'),
         ]);
     }
 
@@ -140,6 +161,7 @@ class TradeController extends Controller
 
         return redirect()->route('trades.index', [
             'filter' => $request->query('filter', 'month'),
+            'pair' => $request->query('pair', 'all'),
         ]);
     }
 

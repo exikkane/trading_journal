@@ -25,7 +25,18 @@
             </div>
             <div class="field">
                 <label for="pair">Pair</label>
-                <input id="pair" type="text" name="pair" value="{{ old('pair', $plan->pair) }}" required>
+                <select id="pair" name="pair" required>
+                    @foreach ($pairCategories as $key => $label)
+                        @php $pairs = $pairsByCategory->get($key, collect()); @endphp
+                        @if ($pairs->isNotEmpty())
+                            <optgroup label="{{ $label }}">
+                                @foreach ($pairs as $pair)
+                                    <option value="{{ $pair->name }}" {{ old('pair', $plan->pair) === $pair->name ? 'selected' : '' }}>{{ $pair->name }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                    @endforeach
+                </select>
                 @error('pair')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -102,6 +113,25 @@
                         <div class="error">{{ $message }}</div>
                     @enderror
                 </div>
+                <div class="field">
+                    <label for="dxy_chart_screenshot">DXY Screenshot</label>
+                    <input id="dxy_chart_screenshot" type="file" name="dxy_chart_screenshot" accept="image/*">
+                    @if ($plan->dxy_chart_screenshot_path)
+                        <div style="margin-top: 8px;">
+                            <img src="{{ Storage::url($plan->dxy_chart_screenshot_path) }}" alt="DXY chart screenshot" style="max-width: 90%; border: 1px solid var(--border); border-radius: 8px;">
+                        </div>
+                    @endif
+                    @error('dxy_chart_screenshot')
+                        <div class="error">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="field">
+                    <label for="dxy_chart_notes">DXY Description</label>
+                    <textarea id="dxy_chart_notes" name="dxy_chart_notes" placeholder="DXY narrative...">{{ old('dxy_chart_notes', $plan->dxy_chart_notes) }}</textarea>
+                    @error('dxy_chart_notes')
+                        <div class="error">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
             <div class="plan-section">
                 <h3>Trading Plan</h3>
@@ -144,13 +174,59 @@
                     @enderror
                 </div>
                 <div class="field">
-                    <label for="cancel_condition">Plan's cancel condition</label>
-                    <input id="cancel_condition" type="text" name="cancel_condition" value="{{ old('cancel_condition', $plan->cancel_condition) }}" placeholder="What invalidates the plan?">
+                    <label for="cancel_condition">Plan's invalidation condition</label>
+                    <textarea id="cancel_condition" name="cancel_condition" placeholder="What invalidates the plan?">{{ old('cancel_condition', $plan->cancel_condition) }}</textarea>
                     @error('cancel_condition')
                         <div class="error">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
+        </div>
+
+        <div class="plan-section" style="margin-top: 16px;">
+            <div class="row" style="margin-bottom: 12px;">
+                <h3 style="margin: 0;">Updates</h3>
+                <div class="spacer"></div>
+                <button class="btn" type="button" id="toggle-updates">Updates</button>
+            </div>
+            <form id="plan-update-form" method="POST" action="{{ route('plans.updates.store', $plan) }}" enctype="multipart/form-data" class="grid" style="display: none;">
+                @csrf
+                <div class="field">
+                    <label for="update_screenshots">Update Screenshots</label>
+                    <input id="update_screenshots" type="file" name="update_screenshots[]" accept="image/*" multiple>
+                    @error('update_screenshots')
+                        <div class="error">{{ $message }}</div>
+                    @enderror
+                    @error('update_screenshots.*')
+                        <div class="error">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="row">
+                    <button class="btn" type="submit">Save Update</button>
+                </div>
+            </form>
+
+            @if (! empty($updates) && $updates->isNotEmpty())
+                <div class="image-stack" style="margin-top: 16px;">
+                    @foreach ($updates as $update)
+                        <div class="plan-section">
+                            <div class="perf-title">Update - {{ $update->update_date->format('Y-m-d') }}</div>
+                            <div class="field" style="margin-top: 8px;">
+                                <textarea class="plan-textarea" readonly>{{ $update->update_notes }}</textarea>
+                            </div>
+                            @if (! empty($update->update_screenshots))
+                                <div class="image-stack" style="margin-top: 12px;">
+                                    @foreach ($update->update_screenshots as $path)
+                                        <img src="{{ Storage::url($path) }}" alt="Plan update screenshot" style="max-width: 100%; border: 1px solid var(--border); border-radius: 8px;">
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="muted" style="font-size: 12px; margin-top: 8px;">No updates yet.</div>
+            @endif
         </div>
 
         <div class="grid split">
@@ -209,4 +285,14 @@
         </div>
     </form>
 </div>
+<script>
+    const toggleButton = document.getElementById('toggle-updates');
+    const updateForm = document.getElementById('plan-update-form');
+    if (toggleButton && updateForm) {
+        toggleButton.addEventListener('click', () => {
+            const visible = updateForm.style.display !== 'none';
+            updateForm.style.display = visible ? 'none' : 'grid';
+        });
+    }
+</script>
 @endsection

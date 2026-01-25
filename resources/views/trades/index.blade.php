@@ -6,12 +6,25 @@
         <div>
             <div class="muted" style="font-size: 13px;">Filters</div>
             <div class="row" style="margin-top: 6px;">
-                <a class="btn {{ $filter === 'all' ? 'secondary' : 'light' }}" href="{{ route('trades.index', ['filter' => 'all']) }}">All</a>
-                <a class="btn {{ $filter === 'week' ? 'secondary' : 'light' }}" href="{{ route('trades.index', ['filter' => 'week']) }}">Current Week</a>
-                <a class="btn {{ $filter === 'month' ? 'secondary' : 'light' }}" href="{{ route('trades.index', ['filter' => 'month']) }}">Current Month</a>
-                <a class="btn {{ $filter === 'quarter' ? 'secondary' : 'light' }}" href="{{ route('trades.index', ['filter' => 'quarter']) }}">Current Quarter</a>
+                <a class="btn {{ $filter === 'all' ? 'secondary' : 'light' }}" href="{{ route('trades.index', ['filter' => 'all', 'pair' => $pairName ?? 'all']) }}">All</a>
+                <a class="btn {{ $filter === 'week' ? 'secondary' : 'light' }}" href="{{ route('trades.index', ['filter' => 'week', 'pair' => $pairName ?? 'all']) }}">Current Week</a>
+                <a class="btn {{ $filter === 'month' ? 'secondary' : 'light' }}" href="{{ route('trades.index', ['filter' => 'month', 'pair' => $pairName ?? 'all']) }}">Current Month</a>
+                <a class="btn {{ $filter === 'quarter' ? 'secondary' : 'light' }}" href="{{ route('trades.index', ['filter' => 'quarter', 'pair' => $pairName ?? 'all']) }}">Current Quarter</a>
 
             </div>
+        </div>
+        <div>
+            <div class="muted" style="font-size: 13px;">Pair</div>
+            <form method="GET" action="{{ route('trades.index') }}" class="row" style="margin-top: 6px;">
+                <input type="hidden" name="filter" value="{{ $filter }}">
+                <select name="pair" onchange="this.form.submit()">
+                    <option value="all">All Pairs</option>
+                    @foreach ($pairs as $pair)
+                        <option value="{{ $pair->name }}" {{ ($pairName ?? 'all') === $pair->name ? 'selected' : '' }}>{{ $pair->name }}</option>
+                    @endforeach
+                </select>
+                <noscript><button class="btn light" type="submit">Apply</button></noscript>
+            </form>
         </div>
         <div class="spacer"></div>
         <a class="btn" href="{{ route('trades.create') }}">Add Trade</a>
@@ -67,11 +80,11 @@
                         </td>
                         <td>{{ number_format((float) ($profits[$trade->id] ?? 0), 2, '.', '') }}%</td>
                         <td class="actions trades-actions">
-                            <form id="{{ $updateFormId }}" method="POST" action="{{ route('trades.update', ['trade' => $trade, 'filter' => $filter]) }}">
+                            <form id="{{ $updateFormId }}" method="POST" action="{{ route('trades.update', ['trade' => $trade, 'filter' => $filter, 'pair' => $pairName ?? 'all']) }}">
                                 @csrf
                                 @method('PUT')
                             </form>
-                            <form id="{{ $deleteFormId }}" method="POST" action="{{ route('trades.destroy', ['trade' => $trade, 'filter' => $filter]) }}" onsubmit="return confirm('Delete this trade?')">
+                            <form id="{{ $deleteFormId }}" method="POST" action="{{ route('trades.destroy', ['trade' => $trade, 'filter' => $filter, 'pair' => $pairName ?? 'all']) }}" onsubmit="return confirm('Delete this trade?')">
                                 @csrf
                                 @method('DELETE')
                             </form>
