@@ -1,5 +1,8 @@
 # Trading Journal
 
+<img width="2013" height="962" alt="image" src="https://github.com/user-attachments/assets/a312ba03-8937-442d-88a6-011642528eec" />
+
+
 A Laravel 10 trading journal that separates **trade ideas** from **per‑account executions**, with performance analytics, planning, and reviews.
 
 ## Core Concepts
