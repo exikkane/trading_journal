@@ -1,43 +1,46 @@
 # Trading Journal
 
-A personal trading journal built with Laravel. It separates trade **ideas** from per‑account executions, so you can record one trade setup and track results across multiple accounts.
-
-## Purpose
-- Capture trade ideas with notes and screenshots.
-- Record executions per account (risk/reward, risk %).
-- See performance metrics (wins, losses, drawdown, equity curve).
+A Laravel 10 trading journal that separates **trade ideas** from **per‑account executions**, with performance analytics, planning, and reviews.
 
 ## Core Concepts
-- **Trade (Parent)**: the trade idea/setup (dates, direction, pair, result, notes, screenshots).
-- **Account Trade**: the execution of that trade on a specific account (RR, risk %).
+- **Trade**: the idea/setup (dates, direction, pair, result, execution details, notes, screenshots).
+- **Account Trade**: the execution of a trade on a specific account (RR, risk %).
+- **Account**: trading account with balance, status, payouts, and derived stats.
 
 ## Features
 ### Trades
-- List parent trades only (no account executions shown in the list).
-- Create a trade idea without account details.
-- Edit the trade’s core info (dates, direction, pair, result, notes).
+- List trades with filters (week / month / quarter / all) and pair filter.
+- Create/edit trade ideas with execution info, notes, and screenshots.
+- View a trade and manage per‑account executions (RR, risk %).
 
-### Accounts (per trade)
-- On the trade detail page, add **Account Trades** for each account.
-- Each account trade has:
-  - Account
-  - Risk Reward (RR)
-  - Risk %
-- Profit for a trade = sum of profits from all account trades.
+### Accounts + Payouts
+- Create accounts with initial/current balance and status.
+- Statuses: Eval Stage 1, Eval Stage 2, Funded, Live, Passed, Failed (archived).
+- Track payouts by date and amount.
+- Account stats: win/loss/BE/in‑progress counts, win ratio, net profit %, profit $, max drawdown.
 
-### Accounts (global)
-- Create accounts with initial/current balance.
-- Account stats: wins/losses/BE/in‑progress, win ratio, profit %, profit $, max drawdown.
+### Pairs
+- Maintain a list of tradeable pairs (Forex / Indices categories).
+- Use pairs to filter trades and plans.
 
-### Dashboard
-- Aggregated stats for parent trades + account executions.
-- Net Profit and Equity Curve are calculated from **account trades**.
-- Filters: current month / current quarter / all.
+### Dashboard & Stats
+- Aggregated stats across trades or per account.
+- Equity curve and net profit from account trades.
+- Filters: time range, account, pair.
+- Monthly analytics chart with selectable year range.
 
-### Stats Page
-- Same metrics as dashboard with filters:
-  - Time range
-  - Account
+### Performance Analysis
+- MPA/QPA views with quarter and month cards.
+- Period drill‑downs by month/quarter with result filters.
+- Performance reviews with notes and screenshots.
+
+### Trading Plans
+- Create plans with narrative (bullish/bearish/neutral).
+- Attach weekly/daily/DXY charts, Plan A/Plan B, cancel condition, and review questions.
+- Store periodic updates with screenshots.
+
+### Trading System
+- Maintain a long‑form system/strategy page with tools, rules, and risk sections.
 
 ## Profit Rules
 For each **account trade**:
@@ -46,44 +49,57 @@ For each **account trade**:
 - **BE**: `RR × Risk %` (can be positive/negative/0)
 - **In progress**: `0`
 
-## Screenshots
-Each trade can store screenshots:
-- **IDEA** (setup when opened)
-- **EXIT MOMENT** (after close)
-- **CONCLUSIONS** (post‑trade review)
-
-Run once to enable image access:
+## Screenshots & File Storage
+Trade, plan, and review screenshots are stored in `storage/app/public`.
+Enable public access once:
 ```
 php artisan storage:link
 ```
 
 ## Local Setup
 1) Install PHP 8.1+, MySQL, Composer.
-2) Configure DB in `.env`.
-3) Run migrations:
+2) Configure database settings in `.env`.
+3) Install dependencies:
+```
+composer install
+```
+4) Run migrations:
 ```
 php artisan migrate
 ```
-4) Start the app:
+5) Generate app key if needed:
+```
+php artisan key:generate
+```
+6) Serve the app:
 ```
 php artisan serve
 ```
 Open: `http://127.0.0.1:8000`
 
+### Optional: Apache + PHP‑FPM (no `artisan serve`)
+Point Apache’s document root to `public/` and use your PHP‑FPM socket.
+Example vhost name can be mapped via `/etc/hosts`.
+
 ## Importing Notion CSV
-There’s a command to import a Notion CSV export:
+Import a Notion CSV export into trades + account trades:
 ```
 php artisan journal:import Journal.csv
 ```
-It creates trades + account trades and auto‑creates accounts by name.
+Use a dry run:
+```
+php artisan journal:import Journal.csv --dry-run
+```
 
 ## Routes
 - `/` or `/trades` — trade list
-- `/trades/{id}` — trade detail + account trades
-- `/accounts` — account list + stats
+- `/trades/{trade}` — trade detail + account trades
 - `/dashboard` — overview metrics
-- `/stats` — metrics filtered by time and account
+- `/stats` — metrics with time/account filters
+- `/data` — accounts, payouts, pairs
+- `/plans` — trading plans
+- `/performance` — performance analysis
+- `/system` — trading system
 
 ## Notes
-- Parent trade IDs and account trade IDs are separate and can be reset if needed.
-- Account trades are unique per trade+account.
+- Account trades are unique per trade + account.
