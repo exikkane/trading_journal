@@ -23,8 +23,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [TradeController::class, 'index'])->name('trades.index');
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
-Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
-Route::post('/accounts', [AccountController::class, 'store'])->name('accounts.store');
+Route::get('/data', [AccountController::class, 'index'])->name('accounts.index');
+Route::post('/data', [AccountController::class, 'store'])->name('accounts.store');
+Route::post('/data/{account}/status', [AccountController::class, 'updateStatus'])->name('accounts.status');
+Route::post('/data/payouts', [AccountController::class, 'storePayout'])->name('accounts.payouts.store');
+Route::post('/data/pairs', [AccountController::class, 'storePair'])->name('accounts.pairs.store');
+Route::get('/accounts', function () {
+    return redirect()->route('accounts.index');
+});
 Route::get('/trades', [TradeController::class, 'index'])->name('trades.index');
 Route::get('/trades/create', [TradeController::class, 'create'])->name('trades.create');
 Route::post('/trades', [TradeController::class, 'store'])->name('trades.store');
@@ -41,6 +47,8 @@ Route::post('/plans', [TradingPlanController::class, 'store'])->name('plans.stor
 Route::get('/plans/{plan}/edit', [TradingPlanController::class, 'edit'])->name('plans.edit');
 Route::put('/plans/{plan}', [TradingPlanController::class, 'update'])->name('plans.update');
 Route::get('/plans/{plan}', [TradingPlanController::class, 'show'])->name('plans.show');
+Route::post('/plans/{plan}/updates', [TradingPlanController::class, 'storeUpdate'])->name('plans.updates.store');
+Route::delete('/plans/{plan}', [TradingPlanController::class, 'destroy'])->name('plans.destroy');
 Route::get('/performance', [PerformanceAnalysisController::class, 'index'])->name('performance.index');
 Route::get('/performance/{type}/{year}/{period}', [PerformanceAnalysisController::class, 'show'])->name('performance.detail');
 Route::post('/performance/{type}/{year}/{period}', [PerformanceAnalysisController::class, 'updateReview'])->name('performance.detail.update');

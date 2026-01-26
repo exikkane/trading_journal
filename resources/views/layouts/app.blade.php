@@ -26,7 +26,7 @@
             color: var(--text);
         }
         header {
-            padding: 20px 500px;
+            padding: 20px 300px;
             background: rgba(17, 24, 39, 0.9);
             border-bottom: 1px solid var(--border);
             backdrop-filter: blur(10px);
@@ -40,7 +40,7 @@
             gap: 10px;
             flex-wrap: wrap;
         }
-        main { padding: 24px 500px 48px; }
+        main { padding: 24px 300px 48px; }
         .card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -243,8 +243,16 @@
         }
         input::placeholder, textarea::placeholder { color: #64748b; }
         textarea {
+            width: 100%;
             min-height: 120px;
             resize: vertical;
+        }
+        .tall-textarea {
+            min-height: 200px;
+        }
+        .plan-textarea {
+            width: 100%;
+            min-height: 200px;
         }
         .grid {
             display: grid;
@@ -284,6 +292,17 @@
             gap: 6px;
             font-size: 12px;
         }
+        .accounts-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            align-items: start;
+        }
+        .account-card {
+            width: 100%;
+            height: auto;
+            min-height: 180px;
+        }
         .perf-card-link { text-decoration: none; color: inherit; }
         .perf-card-link:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(15, 118, 110, 0.12); }
         .perf-title {
@@ -308,6 +327,29 @@
             color: var(--muted);
             margin-top: 8px;
             line-height: 1.6;
+        }
+        .profit-badge {
+            width: 120px;
+            height: 56px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 700;
+            font-size: 12px;
+            line-height: 1.2;
+            border: 2px solid transparent;
+        }
+        .profit-badge.positive {
+            color: #22c55e;
+            background: rgba(34, 197, 94, 0.12);
+            border-color: rgba(34, 197, 94, 0.4);
+        }
+        .profit-badge.negative {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.4);
         }
         .stat-grid {
             display: grid;
@@ -499,7 +541,7 @@
                 <a class="btn light" href="{{ route('trades.index') }}">Trades</a>
                 <a class="btn light" href="{{ route('plans.index') }}">Plans</a>
                 <a class="btn light" href="{{ route('performance.index') }}">Performance</a>
-                <a class="btn light" href="{{ route('accounts.index') }}">Accounts</a>
+                <a class="btn light" href="{{ route('accounts.index') }}">Data</a>
                 <a class="btn light" href="{{ route('system.index') }}">System</a>
             </nav>
         </div>

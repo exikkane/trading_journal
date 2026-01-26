@@ -34,7 +34,18 @@
         <div class="grid two">
             <div class="field">
                 <label for="pair">Pair</label>
-                <input id="pair" type="text" name="pair" value="{{ old('pair') }}" placeholder="GBP/USD" required>
+                <select id="pair" name="pair" required>
+                    @foreach ($pairCategories as $key => $label)
+                        @php $pairs = $pairsByCategory->get($key, collect()); @endphp
+                        @if ($pairs->isNotEmpty())
+                            <optgroup label="{{ $label }}">
+                                @foreach ($pairs as $pair)
+                                    <option value="{{ $pair->name }}" {{ old('pair') === $pair->name ? 'selected' : '' }}>{{ $pair->name }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                    @endforeach
+                </select>
                 @error('pair')
                     <div class="error">{{ $message }}</div>
                 @enderror

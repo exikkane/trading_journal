@@ -8,6 +8,10 @@
             <div class="muted" style="font-size: 13px;">Profit is calculated from the accounts listed below.</div>
         </div>
         <div class="spacer"></div>
+        @php $profitValue = (float) $accountsProfit; @endphp
+        <div class="profit-badge {{ $profitValue >= 0 ? 'positive' : 'negative' }}">
+            {{ $profitValue >= 0 ? 'Profit' : 'Loss' }} {{ number_format(abs($profitValue), 2, '.', '') }}%
+        </div>
         <a class="btn light" href="{{ route('trades.index') }}">Back to List</a>
     </div>
 
@@ -33,17 +37,25 @@
             </div>
         </div>
 
-        <div class="grid two">
+        <div class="grid three">
             <div class="field">
                 <label for="pair">Pair</label>
-                <input id="pair" type="text" name="pair" value="{{ old('pair', $trade->pair) }}" required>
+                <select id="pair" name="pair" required>
+                    @foreach ($pairCategories as $key => $label)
+                        @php $pairs = $pairsByCategory->get($key, collect()); @endphp
+                        @if ($pairs->isNotEmpty())
+                            <optgroup label="{{ $label }}">
+                                @foreach ($pairs as $pair)
+                                    <option value="{{ $pair->name }}" {{ old('pair', $trade->pair) === $pair->name ? 'selected' : '' }}>{{ $pair->name }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                    @endforeach
+                </select>
                 @error('pair')
                     <div class="error">{{ $message }}</div>
                 @enderror
             </div>
-        </div>
-
-        <div class="grid three">
             <div class="field">
                 <label for="direction">Direction</label>
                 <select id="direction" name="direction" required>
@@ -68,22 +80,25 @@
             </div>
         </div>
 
-        <div class="field">
-            <label>Profit % (from accounts)</label>
-            <input type="text" value="{{ number_format((float) $accountsProfit, 2, '.', '') }}%" readonly>
-        </div>
-
         <div class="grid two">
             <div class="field">
                 <label for="execution">Execution</label>
-                <input id="execution" type="text" name="execution" value="{{ old('execution', $trade->execution) }}" placeholder="FVG, IDM, etc.">
+                <select id="execution" name="execution">
+                    @foreach (['IDM', 'FVG', 'SNR', 'Market'] as $option)
+                        <option value="{{ $option }}" {{ old('execution', $trade->execution) === $option ? 'selected' : '' }}>{{ $option }}</option>
+                    @endforeach
+                </select>
                 @error('execution')
                     <div class="error">{{ $message }}</div>
                 @enderror
             </div>
             <div class="field">
                 <label for="entry_tf">Entry TF</label>
-                <input id="entry_tf" type="text" name="entry_tf" value="{{ old('entry_tf', $trade->entry_tf) }}" placeholder="4H, Daily">
+                <select id="entry_tf" name="entry_tf">
+                    @foreach (['4H', 'Daily'] as $option)
+                        <option value="{{ $option }}" {{ old('entry_tf', $trade->entry_tf) === $option ? 'selected' : '' }}>{{ $option }}</option>
+                    @endforeach
+                </select>
                 @error('entry_tf')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -120,7 +135,7 @@
         <div class="grid two">
             <div class="field">
                 <label for="idea_notes">IDEA Notes</label>
-                <textarea id="idea_notes" name="idea_notes" placeholder="Why you took the trade...">{{ old('idea_notes', $trade->idea_notes) }}</textarea>
+                <textarea id="idea_notes" name="idea_notes" class="tall-textarea" placeholder="Why you took the trade...">{{ old('idea_notes', $trade->idea_notes) }}</textarea>
                 @error('idea_notes')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -141,7 +156,7 @@
 
         <div class="field">
             <label for="conclusions_notes">CONCLUSIONS Notes</label>
-            <textarea id="conclusions_notes" name="conclusions_notes" placeholder="Thoughts after the trade...">{{ old('conclusions_notes', $trade->conclusions_notes) }}</textarea>
+            <textarea id="conclusions_notes" name="conclusions_notes" class="tall-textarea" placeholder="Thoughts after the trade...">{{ old('conclusions_notes', $trade->conclusions_notes) }}</textarea>
             @error('conclusions_notes')
                 <div class="error">{{ $message }}</div>
             @enderror

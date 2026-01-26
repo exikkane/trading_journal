@@ -24,7 +24,18 @@
             </div>
             <div class="field">
                 <label for="pair">Pair</label>
-                <input id="pair" type="text" name="pair" value="{{ old('pair') }}" placeholder="EUR/USD" required>
+                <select id="pair" name="pair" required>
+                    @foreach ($pairCategories as $key => $label)
+                        @php $pairs = $pairsByCategory->get($key, collect()); @endphp
+                        @if ($pairs->isNotEmpty())
+                            <optgroup label="{{ $label }}">
+                                @foreach ($pairs as $pair)
+                                    <option value="{{ $pair->name }}" {{ old('pair') === $pair->name ? 'selected' : '' }}>{{ $pair->name }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endif
+                    @endforeach
+                </select>
                 @error('pair')
                     <div class="error">{{ $message }}</div>
                 @enderror
@@ -92,6 +103,20 @@
                         <div class="error">{{ $message }}</div>
                     @enderror
                 </div>
+                <div class="field">
+                    <label for="dxy_chart_screenshot">DXY Screenshot</label>
+                    <input id="dxy_chart_screenshot" type="file" name="dxy_chart_screenshot" accept="image/*">
+                    @error('dxy_chart_screenshot')
+                        <div class="error">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="field">
+                    <label for="dxy_chart_notes">DXY Description</label>
+                    <textarea id="dxy_chart_notes" name="dxy_chart_notes" placeholder="DXY narrative...">{{ old('dxy_chart_notes') }}</textarea>
+                    @error('dxy_chart_notes')
+                        <div class="error">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
             <div class="plan-section">
                 <h3>Trading Plan</h3>
@@ -104,7 +129,7 @@
                 </div>
                 <div class="field">
                     <label for="plan_a_notes">Plan A Description</label>
-                    <textarea id="plan_a_notes" name="plan_a_notes" placeholder="Plan A details...">{{ old('plan_a_notes') }}</textarea>
+                    <textarea cols="33" id="plan_a_notes" name="plan_a_notes" placeholder="Plan A details...">{{ old('plan_a_notes') }}</textarea>
                     @error('plan_a_notes')
                         <div class="error">{{ $message }}</div>
                     @enderror
@@ -124,8 +149,8 @@
                     @enderror
                 </div>
                 <div class="field">
-                    <label for="cancel_condition">Plan's cancel condition</label>
-                    <input id="cancel_condition" type="text" name="cancel_condition" value="{{ old('cancel_condition') }}" placeholder="What invalidates the plan?">
+                    <label for="cancel_condition">Plan's invalidation condition</label>
+                    <textarea id="cancel_condition" name="cancel_condition" placeholder="What invalidates the plan?">{{ old('cancel_condition') }}</textarea>
                     @error('cancel_condition')
                         <div class="error">{{ $message }}</div>
                     @enderror

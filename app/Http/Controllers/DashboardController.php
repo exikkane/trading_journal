@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\AccountTrade;
+use App\Models\Pair;
 use App\Models\Trade;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -24,6 +25,14 @@ class DashboardController extends Controller
             $accountId = null;
         }
 
+        $pairs = Pair::query()->orderBy('name')->get();
+        $pairName = $request->query('pair', 'all');
+        if ($pairName === 'all') {
+            $pairName = null;
+        } elseif (! $pairs->pluck('name')->contains($pairName)) {
+            $pairName = null;
+        }
+
         $dateRange = null;
         if ($filter !== 'all') {
             $now = Carbon::now();
@@ -31,19 +40,42 @@ class DashboardController extends Controller
             $end = $filter === 'month' ? $now->copy()->endOfMonth() : $now->copy()->endOfQuarter();
             $dateRange = [$start, $end];
         }
-        $currentData = $this->buildPeriodData($dateRange, $accountId);
+        $currentData = $this->buildPeriodData($dateRange, $accountId, $pairName);
+
+        $yearOptions = Trade::query()
+            ->selectRaw('YEAR(start_date) as year')
+            ->whereNotNull('start_date')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->filter()
+            ->values();
+        if ($yearOptions->isEmpty()) {
+            $yearOptions = collect([Carbon::now()->year]);
+        }
+
+        $selectedYear = (int) $request->query('year', $yearOptions->first());
+        if (! $yearOptions->contains($selectedYear)) {
+            $selectedYear = (int) $yearOptions->first();
+        }
+
+        $range = $request->query('range', 'recent');
+        if (! in_array($range, ['recent', 'quarter', 'year'], true)) {
+            $range = 'recent';
+        }
+        $monthlyAnalytics = $this->buildMonthlyAnalytics($selectedYear, $accountId, $pairName, $range);
 
         $previousStats = null;
         $previousLabel = null;
         if ($filter === 'month') {
             $prevStart = Carbon::now()->subMonthNoOverflow()->startOfMonth();
             $prevEnd = $prevStart->copy()->endOfMonth();
-            $previousStats = $this->buildPeriodData([$prevStart, $prevEnd], $accountId)['stats'];
+            $previousStats = $this->buildPeriodData([$prevStart, $prevEnd], $accountId, $pairName)['stats'];
             $previousLabel = $prevStart->format('F Y');
         } elseif ($filter === 'quarter') {
             $prevStart = Carbon::now()->subQuarter()->startOfQuarter();
             $prevEnd = $prevStart->copy()->endOfQuarter();
-            $previousStats = $this->buildPeriodData([$prevStart, $prevEnd], $accountId)['stats'];
+            $previousStats = $this->buildPeriodData([$prevStart, $prevEnd], $accountId, $pairName)['stats'];
             $previousLabel = 'Q' . $prevStart->quarter . ' ' . $prevStart->year;
         }
 
@@ -52,6 +84,8 @@ class DashboardController extends Controller
         return view('dashboard', [
             'filter' => $filter,
             'accountId' => $accountId,
+            'pairName' => $pairName,
+            'pairs' => $pairs,
             'accounts' => $accounts,
             'totalTrades' => $currentData['stats']['totalTrades'],
             'wins' => $currentData['stats']['wins'],
@@ -63,22 +97,34 @@ class DashboardController extends Controller
             'maxDrawdown' => $currentData['stats']['maxDrawdown'],
             'netProfit' => $currentData['stats']['netProfit'],
             'equity' => $currentData['stats']['equity'],
+            'monthlyAnalytics' => $monthlyAnalytics,
+            'yearOptions' => $yearOptions,
+            'selectedYear' => $selectedYear,
+            'range' => $range,
             'previousStats' => $previousStats,
             'previousLabel' => $previousLabel,
         ]);
     }
 
-    private function buildPeriodData(?array $dateRange, ?int $accountId): array
+    private function buildPeriodData(?array $dateRange, ?int $accountId, ?string $pairName): array
     {
         $tradeQuery = Trade::query()->orderBy('start_date');
         if ($dateRange) {
             $tradeQuery->whereBetween('start_date', [$dateRange[0]->toDateString(), $dateRange[1]->toDateString()]);
+        }
+        if ($pairName) {
+            $tradeQuery->where('pair', $pairName);
         }
 
         $accountTradeQuery = AccountTrade::query()->with('trade');
         if ($dateRange) {
             $accountTradeQuery->whereHas('trade', function ($tradeQuery) use ($dateRange) {
                 $tradeQuery->whereBetween('start_date', [$dateRange[0]->toDateString(), $dateRange[1]->toDateString()]);
+            });
+        }
+        if ($pairName) {
+            $accountTradeQuery->whereHas('trade', function ($tradeQuery) use ($pairName) {
+                $tradeQuery->where('pair', $pairName);
             });
         }
         if ($accountId) {
@@ -180,6 +226,78 @@ class DashboardController extends Controller
             'maxDrawdown' => $maxDrawdown,
             'netProfit' => $netProfit,
             'equity' => $equity,
+        ];
+    }
+
+    private function buildMonthlyAnalytics(int $year, ?int $accountId, ?string $pairName, string $range): array
+    {
+        $monthly = array_fill(1, 12, 0.0);
+
+        $accountTradeQuery = AccountTrade::query()->with('trade')
+            ->whereHas('trade', function ($tradeQuery) use ($year) {
+                $tradeQuery->whereYear('start_date', $year);
+            });
+
+        if ($pairName) {
+            $accountTradeQuery->whereHas('trade', function ($tradeQuery) use ($pairName) {
+                $tradeQuery->where('pair', $pairName);
+            });
+        }
+        if ($accountId) {
+            $accountTradeQuery->where('account_id', $accountId);
+        }
+
+        $accountTrades = $accountTradeQuery->get();
+
+        foreach ($accountTrades as $accountTrade) {
+            $trade = $accountTrade->trade;
+            if (! $trade) {
+                continue;
+            }
+
+            $month = (int) Carbon::parse($trade->start_date)->month;
+            $riskPct = (float) $accountTrade->risk_pct;
+            $riskReward = (float) $accountTrade->risk_reward;
+            $delta = 0.0;
+
+            if ($trade->result === 'win') {
+                $delta = $riskReward * $riskPct;
+            } elseif ($trade->result === 'loss') {
+                $delta = -$riskPct;
+            } elseif ($trade->result === 'be') {
+                $delta = $riskReward * $riskPct;
+            } else {
+                continue;
+            }
+
+            $monthly[$month] += $delta;
+        }
+
+        $now = Carbon::now();
+        $endMonth = ($year === (int) $now->year) ? (int) $now->month : 12;
+        if ($range === 'year') {
+            $startMonth = 1;
+            $endMonth = 12;
+        } elseif ($range === 'quarter') {
+            $required = 3;
+            if ($endMonth < $required) {
+                $endMonth = $required;
+            }
+            $startMonth = max(1, $endMonth - ($required - 1));
+        } else {
+            $required = 5;
+            if ($endMonth < $required) {
+                $endMonth = $required;
+            }
+            $startMonth = max(1, $endMonth - ($required - 1));
+        }
+        $months = range($startMonth, $endMonth);
+
+        return [
+            'year' => $year,
+            'values' => $monthly,
+            'months' => $months,
+            'range' => $range,
         ];
     }
 }
