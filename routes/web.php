@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotesController;
 use App\Http\Controllers\PerformanceAnalysisController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TradeController;
@@ -20,7 +21,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [TradeController::class, 'index'])->name('trades.index');
+Route::get('/', function () {
+    return redirect()->route('dashboard');
+});
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
 Route::get('/data', [AccountController::class, 'index'])->name('accounts.index');
@@ -49,6 +52,11 @@ Route::put('/plans/{plan}', [TradingPlanController::class, 'update'])->name('pla
 Route::get('/plans/{plan}', [TradingPlanController::class, 'show'])->name('plans.show');
 Route::post('/plans/{plan}/updates', [TradingPlanController::class, 'storeUpdate'])->name('plans.updates.store');
 Route::delete('/plans/{plan}', [TradingPlanController::class, 'destroy'])->name('plans.destroy');
+Route::get('/notes', [NotesController::class, 'index'])->name('notes.index');
+Route::post('/notes', [NotesController::class, 'store'])->name('notes.store');
+Route::get('/notes/{note}', [NotesController::class, 'show'])->name('notes.show');
+Route::put('/notes/{note}', [NotesController::class, 'update'])->name('notes.update');
+Route::delete('/notes/{note}', [NotesController::class, 'destroy'])->name('notes.destroy');
 Route::get('/performance', [PerformanceAnalysisController::class, 'index'])->name('performance.index');
 Route::get('/performance/{type}/{year}/{period}', [PerformanceAnalysisController::class, 'show'])->name('performance.detail');
 Route::post('/performance/{type}/{year}/{period}', [PerformanceAnalysisController::class, 'updateReview'])->name('performance.detail.update');
