@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PerformanceReview;
 use App\Models\AccountTrade;
+use App\Models\Note;
 use App\Models\Trade;
 use App\Models\TradingPlan;
 use Carbon\Carbon;
@@ -247,6 +248,12 @@ class PerformanceAnalysisController extends Controller
             ->orderBy('plan_date')
             ->get();
 
+        $notes = Note::query()
+            ->whereBetween('note_date', [$start->toDateString(), $end->toDateString()])
+            ->orderBy('note_date')
+            ->orderBy('id')
+            ->get();
+
         $reviewQuarter = $type === 'quarter' ? $period : $this->monthToQuarter($period);
         $reviewMonth = $type === 'month' ? $period : 0;
         $review = PerformanceReview::query()
@@ -274,6 +281,7 @@ class PerformanceAnalysisController extends Controller
             'stats' => $stats,
             'accountsStats' => $accountsStats,
             'plans' => $plans,
+            'notes' => $notes,
             'tradesList' => $tradesList,
             'resultFilter' => $resultFilter,
             'review' => $review,

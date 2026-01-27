@@ -88,6 +88,43 @@
         </div>
     </div>
 
+    <div class="plan-section" style="margin-top: 16px;">
+        <div class="row" style="margin-bottom: 12px;">
+            <div>
+                <h3 style="margin: 0;">Notes (Linked to Period)</h3>
+                <div class="muted" style="font-size: 12px;">Notes dated within this timeframe.</div>
+            </div>
+            <div class="spacer"></div>
+            <a class="btn light" href="{{ route('notes.index', ['date' => $start->format('Y-m-d')]) }}">Add Note</a>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($notes as $note)
+                        <tr>
+                            <td>{{ $note->name }}</td>
+                            <td>{{ $note->note_date->format('Y-m-d') }}</td>
+                            <td class="actions">
+                                <a class="btn light" href="{{ route('notes.show', $note) }}">Details</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="3" class="muted">No notes for this period.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <form method="POST" action="{{ route('performance.detail.update', ['type' => $type, 'year' => $year, 'period' => $period, 'result' => $resultFilter]) }}" enctype="multipart/form-data">
         @csrf
 

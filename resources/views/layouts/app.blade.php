@@ -540,6 +540,7 @@
                 <a class="btn light" href="{{ route('dashboard') }}">Dashboard</a>
                 <a class="btn light" href="{{ route('trades.index') }}">Trades</a>
                 <a class="btn light" href="{{ route('plans.index') }}">Plans</a>
+                <a class="btn light" href="{{ route('notes.index') }}">Notes</a>
                 <a class="btn light" href="{{ route('performance.index') }}">Performance</a>
                 <a class="btn light" href="{{ route('accounts.index') }}">Data</a>
                 <a class="btn light" href="{{ route('system.index') }}">System</a>
