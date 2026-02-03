@@ -254,6 +254,10 @@
             width: 100%;
             min-height: 200px;
         }
+        .plan-text {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
         .grid {
             display: grid;
             gap: 16px;

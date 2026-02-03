@@ -47,22 +47,17 @@ class AccountController extends Controller
                 } elseif ($trade->result === 'loss') {
                     $netProfit -= $riskPct;
                     $currentLossStreak += $riskPct;
-                    if ($currentLossStreak > $maxDrawdown) {
-                        $maxDrawdown = $currentLossStreak;
-                    }
                 } elseif ($trade->result === 'be') {
                     $delta = $riskReward * $riskPct;
                     $netProfit += $delta;
                     if ($delta < 0) {
                         $currentLossStreak += abs($delta);
-                        if ($currentLossStreak > $maxDrawdown) {
-                            $maxDrawdown = $currentLossStreak;
-                        }
                     } else {
                         $currentLossStreak = 0.0;
                     }
                 }
             }
+            $maxDrawdown = $currentLossStreak;
 
             $initialBalance = (float) $account->initial_balance;
             $profitAmount = $initialBalance * ($netProfit / 100);

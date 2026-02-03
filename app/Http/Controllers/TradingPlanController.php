@@ -14,9 +14,9 @@ class TradingPlanController extends Controller
 {
     public function index(Request $request)
     {
-        $filter = $request->query('filter', 'month');
+        $filter = $request->query('filter', 'all');
         if (! in_array($filter, ['month', 'quarter', 'all'], true)) {
-            $filter = 'month';
+            $filter = 'all';
         }
 
         $pairs = Pair::query()->orderBy('name')->get();
@@ -113,7 +113,7 @@ class TradingPlanController extends Controller
         $plan->delete();
 
         return redirect()->route('plans.index', [
-            'filter' => $request->query('filter', 'month'),
+            'filter' => $request->query('filter', 'all'),
             'pair' => $request->query('pair', 'all'),
         ]);
     }
@@ -147,6 +147,7 @@ class TradingPlanController extends Controller
     public function storeUpdate(Request $request, TradingPlan $plan)
     {
         $data = $request->validate([
+            'update_notes' => ['nullable', 'string'],
             'update_screenshots' => ['nullable', 'array'],
             'update_screenshots.*' => ['image', 'max:5120'],
         ]);
@@ -161,7 +162,7 @@ class TradingPlanController extends Controller
         TradingPlanUpdate::create([
             'trading_plan_id' => $plan->id,
             'update_date' => Carbon::now()->toDateString(),
-            'update_notes' => null,
+            'update_notes' => $data['update_notes'] ?? null,
             'update_screenshots' => $paths ?: null,
         ]);
 

@@ -68,7 +68,7 @@
                 <h3>Reference Images</h3>
                 <div class="image-stack">
                     @foreach ($leftImages as $index => $path)
-                        <img src="{{ $path }}" alt="Reference image {{ $index + 1 }}" style="width: 90%; border: 1px solid var(--border); border-radius: 8px;">
+                        <img src="{{ $path }}" alt="Reference image {{ $index + 1 }}" style="width: 100%; border: 1px solid var(--border); border-radius: 8px;">
                     @endforeach
                 </div>
                 <div class="muted" style="font-size: 12px; margin-top: 8px;">Update the image paths in this file.</div>
@@ -189,11 +189,17 @@
                 <div class="spacer"></div>
                 <button class="btn" type="button" id="toggle-updates">Updates</button>
             </div>
-            <form id="plan-update-form" method="POST" action="{{ route('plans.updates.store', $plan) }}" enctype="multipart/form-data" class="grid" style="display: none;">
-                @csrf
+            <div id="plan-update-fields" class="grid" style="display: none;">
+                <div class="field">
+                    <label for="update_notes">Update Notes</label>
+                    <textarea id="update_notes" name="update_notes" form="plan-update-form" placeholder="Update description...">{{ old('update_notes') }}</textarea>
+                    @error('update_notes')
+                        <div class="error">{{ $message }}</div>
+                    @enderror
+                </div>
                 <div class="field">
                     <label for="update_screenshots">Update Screenshots</label>
-                    <input id="update_screenshots" type="file" name="update_screenshots[]" accept="image/*" multiple>
+                    <input id="update_screenshots" type="file" name="update_screenshots[]" accept="image/*" multiple form="plan-update-form">
                     @error('update_screenshots')
                         <div class="error">{{ $message }}</div>
                     @enderror
@@ -202,9 +208,9 @@
                     @enderror
                 </div>
                 <div class="row">
-                    <button class="btn" type="submit">Save Update</button>
+                    <button class="btn" type="submit" form="plan-update-form">Save Update</button>
                 </div>
-            </form>
+            </div>
 
             @if (! empty($updates) && $updates->isNotEmpty())
                 <div class="image-stack" style="margin-top: 16px;">
@@ -212,12 +218,12 @@
                         <div class="plan-section">
                             <div class="perf-title">Update - {{ $update->update_date->format('Y-m-d') }}</div>
                             <div class="field" style="margin-top: 8px;">
-                                <textarea class="plan-textarea" readonly>{{ $update->update_notes }}</textarea>
+                                <div class="plan-text">{{ $update->update_notes }}</div>
                             </div>
                             @if (! empty($update->update_screenshots))
                                 <div class="image-stack" style="margin-top: 12px;">
                                     @foreach ($update->update_screenshots as $path)
-                                        <img src="{{ Storage::url($path) }}" alt="Plan update screenshot" style="max-width: 100%; border: 1px solid var(--border); border-radius: 8px;">
+                                        <img src="{{ Storage::url($path) }}" alt="Plan update screenshot" style="width: 60%; max-width: 100%; border: 1px solid var(--border); border-radius: 8px;">
                                     @endforeach
                                 </div>
                             @endif
@@ -287,7 +293,7 @@
 </div>
 <script>
     const toggleButton = document.getElementById('toggle-updates');
-    const updateForm = document.getElementById('plan-update-form');
+    const updateForm = document.getElementById('plan-update-fields');
     if (toggleButton && updateForm) {
         toggleButton.addEventListener('click', () => {
             const visible = updateForm.style.display !== 'none';
@@ -295,4 +301,7 @@
         });
     }
 </script>
+<form id="plan-update-form" method="POST" action="{{ route('plans.updates.store', $plan) }}" enctype="multipart/form-data">
+    @csrf
+</form>
 @endsection

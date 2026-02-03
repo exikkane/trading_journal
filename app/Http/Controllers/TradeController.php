@@ -15,9 +15,9 @@ class TradeController extends Controller
 {
     public function index(Request $request)
     {
-        $filter = $request->query('filter', 'month');
+        $filter = $request->query('filter', 'all');
         if (! in_array($filter, ['week', 'month', 'quarter', 'all'], true)) {
-            $filter = 'month';
+            $filter = 'all';
         }
         $pairs = Pair::query()->orderBy('name')->get();
         $pairName = $request->query('pair', 'all');
@@ -149,7 +149,7 @@ class TradeController extends Controller
         }
 
         return redirect()->route('trades.index', [
-            'filter' => $request->query('filter', 'month'),
+            'filter' => $request->query('filter', 'all'),
             'pair' => $request->query('pair', 'all'),
         ]);
     }
@@ -160,7 +160,7 @@ class TradeController extends Controller
         $trade->delete();
 
         return redirect()->route('trades.index', [
-            'filter' => $request->query('filter', 'month'),
+            'filter' => $request->query('filter', 'all'),
             'pair' => $request->query('pair', 'all'),
         ]);
     }

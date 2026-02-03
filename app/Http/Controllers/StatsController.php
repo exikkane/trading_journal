@@ -12,9 +12,9 @@ class StatsController extends Controller
 {
     public function index(Request $request)
     {
-        $filter = $request->query('filter', 'month');
+        $filter = $request->query('filter', 'all');
         if (! in_array($filter, ['month', 'quarter', 'all'], true)) {
-            $filter = 'month';
+            $filter = 'all';
         }
 
         $accountId = $request->query('account');
@@ -94,16 +94,10 @@ class StatsController extends Controller
             } elseif ($trade->result === 'loss') {
                 $delta = -$riskPct;
                 $currentLossStreak += $riskPct;
-                if ($currentLossStreak > $maxDrawdown) {
-                    $maxDrawdown = $currentLossStreak;
-                }
             } elseif ($trade->result === 'be') {
                 $delta = $riskReward * $riskPct;
                 if ($delta < 0) {
                     $currentLossStreak += abs($delta);
-                    if ($currentLossStreak > $maxDrawdown) {
-                        $maxDrawdown = $currentLossStreak;
-                    }
                 } else {
                     $currentLossStreak = 0.0;
                 }
@@ -113,6 +107,7 @@ class StatsController extends Controller
             $netProfit = $running;
             $equity[] = $running;
         }
+        $maxDrawdown = $currentLossStreak;
 
         $accounts = Account::query()->orderBy('name')->get();
 

@@ -56,7 +56,7 @@
             </div>
             <div class="field">
                 <label>Weekly Description</label>
-                <textarea class="plan-textarea" readonly>{{ $plan->weekly_chart_notes }}</textarea>
+                <div class="plan-text">{{ $plan->weekly_chart_notes }}</div>
             </div>
             <div class="field">
                 <label>Daily Screenshot</label>
@@ -68,7 +68,7 @@
             </div>
             <div class="field">
                 <label>Daily Description</label>
-                <textarea class="plan-textarea" readonly>{{ $plan->daily_chart_notes }}</textarea>
+                <div class="plan-text">{{ $plan->daily_chart_notes }}</div>
             </div>
             <div class="field">
                 <label>DXY Screenshot</label>
@@ -80,7 +80,7 @@
             </div>
             <div class="field">
                 <label>DXY Description</label>
-                <textarea class="plan-textarea" readonly>{{ $plan->dxy_chart_notes }}</textarea>
+                <div class="plan-text">{{ $plan->dxy_chart_notes }}</div>
             </div>
         </div>
         <div class="plan-section">
@@ -95,7 +95,7 @@
             </div>
             <div class="field">
                 <label>Plan A Description</label>
-                <textarea class="plan-textarea" readonly>{{ $plan->plan_a_notes }}</textarea>
+                <div class="plan-text">{{ $plan->plan_a_notes }}</div>
             </div>
             <div class="field">
                 <label>Plan B Screenshot</label>
@@ -107,11 +107,11 @@
             </div>
             <div class="field">
                 <label>Plan B Description</label>
-                <textarea class="plan-textarea" readonly>{{ $plan->plan_b_notes }}</textarea>
+                <div class="plan-text">{{ $plan->plan_b_notes }}</div>
             </div>
             <div class="field">
                 <label>Plan's invalidation condition</label>
-                <textarea class="plan-textarea" readonly>{{ $plan->cancel_condition }}</textarea>
+                <div class="plan-text">{{ $plan->cancel_condition }}</div>
             </div>
         </div>
     </div>
@@ -124,6 +124,13 @@
         </div>
         <form id="plan-update-form" method="POST" action="{{ route('plans.updates.store', $plan) }}" enctype="multipart/form-data" class="grid" style="display: none;">
             @csrf
+            <div class="field">
+                <label for="update_notes">Update Notes</label>
+                <textarea id="update_notes" name="update_notes" placeholder="Update description...">{{ old('update_notes') }}</textarea>
+                @error('update_notes')
+                    <div class="error">{{ $message }}</div>
+                @enderror
+            </div>
             <div class="field">
                 <label for="update_screenshots">Update Screenshots</label>
                 <input id="update_screenshots" type="file" name="update_screenshots[]" accept="image/*" multiple>
@@ -145,12 +152,12 @@
                     <div class="plan-section">
                         <div class="perf-title">Update - {{ $update->update_date->format('Y-m-d') }}</div>
                         <div class="field" style="margin-top: 8px;">
-                            <textarea class="plan-textarea" readonly>{{ $update->update_notes }}</textarea>
+                            <div class="plan-text">{{ $update->update_notes }}</div>
                         </div>
                         @if (! empty($update->update_screenshots))
                             <div class="image-stack" style="margin-top: 12px;">
                                 @foreach ($update->update_screenshots as $path)
-                                    <img src="{{ Storage::url($path) }}" alt="Plan update screenshot" style="max-width: 100%; border: 1px solid var(--border); border-radius: 8px;">
+                                    <img src="{{ Storage::url($path) }}" alt="Plan update screenshot" style="width: 60%; max-width: 100%; border: 1px solid var(--border); border-radius: 8px;">
                                 @endforeach
                             </div>
                         @endif
@@ -165,29 +172,29 @@
     <div class="grid split" style="margin-top: 16px;">
         <div class="plan-section">
             <h3>Notes / Review</h3>
-            <textarea class="plan-textarea" readonly>{{ $plan->notes_review }}</textarea>
+            <div class="plan-text">{{ $plan->notes_review }}</div>
         </div>
         <div class="plan-section">
             <h3>Weekly Review Questions</h3>
             <div class="field">
                 <label>1. Нарратив отработал?</label>
-                <textarea class="plan-textarea" readonly>{{ $plan->weekly_review_q1 }}</textarea>
+                <div class="plan-text">{{ $plan->weekly_review_q1 }}</div>
             </div>
             <div class="field">
                 <label>2. Как можно было монетизировать фактический нарратив?</label>
-                <textarea class="plan-textarea" readonly>{{ $plan->weekly_review_q2 }}</textarea>
+                <div class="plan-text">{{ $plan->weekly_review_q2 }}</div>
             </div>
             <div class="field">
                 <label>3. Какие особенности PA можно выделить за неделю?</label>
-                <textarea class="plan-textarea" readonly>{{ $plan->weekly_review_q3 }}</textarea>
+                <div class="plan-text">{{ $plan->weekly_review_q3 }}</div>
             </div>
             <div class="field">
                 <label>4. Какие сильные стороны открытых позиций можно отметить?</label>
-                <textarea class="plan-textarea" readonly>{{ $plan->weekly_review_q4 }}</textarea>
+                <div class="plan-text">{{ $plan->weekly_review_q4 }}</div>
             </div>
             <div class="field">
                 <label>5. Насколько эффективным был торговый план? Что можно улучшить?</label>
-                <textarea class="plan-textarea" readonly>{{ $plan->weekly_review_q5 }}</textarea>
+                <div class="plan-text">{{ $plan->weekly_review_q5 }}</div>
             </div>
         </div>
     </div>
@@ -201,11 +208,5 @@
             updateForm.style.display = visible ? 'none' : 'grid';
         });
     }
-    document.querySelectorAll('.plan-textarea').forEach((textarea) => {
-        textarea.style.height = 'auto';
-        const minHeight = 200;
-        const nextHeight = Math.max(textarea.scrollHeight, minHeight);
-        textarea.style.height = `${nextHeight}px`;
-    });
 </script>
 @endsection
